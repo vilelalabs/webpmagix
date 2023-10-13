@@ -15,7 +15,7 @@ const LoadedFile = ({file}: LoadedFileInterface) => {
     return (
         <div className="flex flex-row items-center justify-between border rounded-xl shadow-turquoise shadow-md  border-turquoise p-3">
             <p className="text-richblack w-3/5">{file.name}</p>
-            <p className="text-redviolet w-1/5 text-center">{fileSize}</p>
+            <p className="text-redviolet w-1/5 text-right">{fileSize}</p>
             <AiOutlineClose
                 onClick={() => removeLoadedFile(file)}
                 size={25}
