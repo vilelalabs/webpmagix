@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 export interface FileInterface{
     name: string
-    size: string
+    size: number
 }
 
 interface LoadedFilesInterface {
