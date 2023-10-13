@@ -16,6 +16,7 @@ const config: Config = {
       colors: {
         'richblack': '#011627',
         'redviolet': '#B91372',
+        'hoverredviolet': '#970150',
         'babypowder': '#FDFFFC',
         'turquoise': '#41EAD4',
         'titlered': '#FF0022',
