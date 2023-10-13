@@ -10,10 +10,12 @@ const LoadedFile = ({file}: LoadedFileInterface) => {
 
     const {removeLoadedFile} = useLoadedFiles();
 
+    const fileSize = file.size>=1000000 ? `${(file.size/1000000).toFixed(2)} MB` : `${(file.size/1000).toFixed(2)} KB`
+
     return (
         <div className="flex flex-row items-center justify-between border rounded-xl shadow-redviolet shadow-md  border-redviolet p-3">
             <p className="text-richblack w-3/5">{file.name}</p>
-            <p className="text-redviolet w-1/5">{file.size}</p>
+            <p className="text-redviolet w-1/5 text-center">{fileSize}</p>
             <AiOutlineClose
                 onClick={() => removeLoadedFile(file)}
                 size={25}
