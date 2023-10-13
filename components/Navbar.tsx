@@ -4,7 +4,6 @@ const Navbar = () => {
     return (
         <nav className="border-b-2 border-titlered">
             <Image
-                className=""
                 src="/logo.png"
                 alt="Logo"
                 width={260}
