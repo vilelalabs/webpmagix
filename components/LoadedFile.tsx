@@ -1,15 +1,14 @@
 "use client";
-import useLoadedFiles, {FileInterface} from "@/hooks/useLoadedFiles";
+import useLoadedFiles from "@/hooks/useLoadedFiles";
 import { AiOutlineClose } from "react-icons/ai";
 
 interface LoadedFileInterface {
-    file: FileInterface;
+    file: File;
 }
 
 const LoadedFile = ({file}: LoadedFileInterface) => {
 
     const {removeLoadedFile} = useLoadedFiles();
-
     const fileSize = file.size>=1000000 ? `${(file.size/1000000).toFixed(2)} MB` : `${(file.size/1000).toFixed(2)} KB`
 
     return (

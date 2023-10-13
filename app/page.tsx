@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import Title from "@/components/Title"
-import useLoadedFiles, { FileInterface } from "@/hooks/useLoadedFiles";
+import useLoadedFiles from "@/hooks/useLoadedFiles";
 
 const MAX_FILE_SIZE = 100000000 // 100MB
 
@@ -27,6 +27,7 @@ export default function Home() {
     if (!e.target.files) return
 
     const files = Array.from(e.target.files);
+    console.log(files)
 
     // Check if files are valid
     for (let i = 0; i < files.length; i++) {
@@ -40,16 +41,9 @@ export default function Home() {
       }
     }
 
-
-    for (let i = 0; i < files.length; i++) {
-      const name = files[i].name
-      const size = files[i].size
-      const file = {
-        name,
-        size,
-      } as FileInterface;
+    files.forEach((file) => {
       addLoadedFile(file)
-    }
+    });
 
     router.push("/loaded")
 

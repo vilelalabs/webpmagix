@@ -1,14 +1,10 @@
 import { create } from 'zustand'
 
-export interface FileInterface{
-    name: string
-    size: number
-}
 
 interface LoadedFilesInterface {
-    loadedFiles: FileInterface[]
-    addLoadedFile: (file: FileInterface) => void
-    removeLoadedFile: (file: FileInterface) => void
+    loadedFiles: File[]
+    addLoadedFile: (file: File) => void
+    removeLoadedFile: (file: File) => void
 }
 
 
