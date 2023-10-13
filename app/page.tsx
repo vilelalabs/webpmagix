@@ -58,14 +58,13 @@ export default function Home() {
 
   return (
     <main>
-      <div className="flex flex-col w-full items-center justify-center p-20 gap-28">
+      <div className="flex flex-col w-full items-center justify-center p-20 gap-28 overflow-y-auto h-screen">
         <Title />
-        <div className="flex flex-col items-center gap-8 w-1/2">
+        <div className="flex flex-col items-center gap-8 md:w-1/2">
           <p className="text-lg text-center font-light">Select any file with image format, eg. .png, .jpg, .jpeg, .gif, .svg, etc. Max file size is 100MB.</p>
           <button
             onClick={handleImageSelect}
-            className="bg-redviolet rounded-xl w-80 py-3 text-xl font-medium hover:bg-hoverredviolet"
-          >
+            className="bg-redviolet rounded-xl w-60 md:w-80 py-3 text-xl font-medium hover:bg-hoverredviolet m-4">
             Select File(s) to Convert
             <input
               onChange={(e) => handleImageChange(e)}
