@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 
-
 interface LoadedFilesInterface {
     loadedFiles: File[]
     addLoadedFile: (file: File) => void
