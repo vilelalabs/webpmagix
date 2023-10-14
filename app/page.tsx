@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Title from "@/components/Title"
 import useLoadedFiles from "@/hooks/useLoadedFiles";
 
-const MAX_FILE_SIZE = 100000000 // 100MB
+const MAX_FILE_SIZE = 25000000 // in bytes (x1000000 for MB)
 
 export default function Home() {
   const { addLoadedFile } = useLoadedFiles()
@@ -55,7 +55,7 @@ export default function Home() {
         <Title />
         <div className="flex flex-col items-center gap-8 md:w-1/2">
           <p className="text-lg text-center font-light">Select files with image format, eg. .png, .jpg, .jpeg, .gif, etc.
-            <br /> Max file size is 100MB.
+            <br /> Max file size is {MAX_FILE_SIZE/1000000}MB.
             <br /><span className="text-red-400">.ico and .svg and .webp itself are not supported as input.</span></p>
           <button
             onClick={handleImageSelect}
