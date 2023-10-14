@@ -1,13 +1,14 @@
 "use client";
 import LoadedFile from "@/components/LoadedFile";
 import Title from "@/components/Title";
+import useConvertedFiles, {ConvertedFileInterface} from "@/hooks/useConvertedFiles";
 import useLoadedFiles from "@/hooks/useLoadedFiles";
 import { useRouter } from "next/navigation";
-import { blob } from "stream/consumers";
 
 
 const Loaded = () => {
     const { loadedFiles } = useLoadedFiles();
+    const { addConvertedFile } = useConvertedFiles();
     const router = useRouter();
 
     if (loadedFiles.length === 0) router.push("/");
@@ -27,7 +28,18 @@ const Loaded = () => {
                 }
             );
 
-            if(!res.ok) throw new Error(await res.text());
+            if (!res.ok) throw new Error(await res.text());
+
+            const response = await res.json();
+            const files = response.data;
+            files.forEach((file: ConvertedFileInterface) => {
+                addConvertedFile(file);
+            });
+            
+
+
+
+            router.push("/download");
 
 
         } catch (error) {

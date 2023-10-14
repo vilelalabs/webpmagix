@@ -19,6 +19,7 @@ const config: Config = {
         'hoverredviolet': '#970150',
         'babypowder': '#FDFFFC',
         'turquoise': '#41EAD4',
+        'hoverturquoise': '#20C8B2',
         'titlered': '#FF0022',
       },
     },

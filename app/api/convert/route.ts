@@ -2,23 +2,22 @@
 import webp from 'webp-converter';
 import { NextRequest } from "next/server";
 import { join } from 'path';
-import { writeFile, rm } from 'fs/promises';
-
+import { writeFile, readFile, rm } from 'fs/promises';
+import { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
 
 export async function POST(request: NextRequest) {
-
-
     try {
-
         const data = await request.formData();
         const files: any = [];
 
         data.forEach((value, index) => {
             files.push(value as unknown as File);
         });
-        
-        files.forEach(async (file: any) => {
 
+        let outputFilesData: ConvertedFileInterface[] = [];
+        const promises:any = [];
+        
+        for (const file of files) {
             if (!file) {
                 return new Response(JSON.stringify({ error: "file not found" }), {
                     status: 400,
@@ -29,33 +28,45 @@ export async function POST(request: NextRequest) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            const input = join('./', 'tmp', file.name);
+            const input = join('./', "public", "tmp", file.name);
             await writeFile(input, buffer);
 
             const filename = file.name.split('.')[0];
-            const output = join('./', 'tmp', `${filename}.webp`);
+            const outputFileName = `${filename}.webp`;
+            const output = join('./', "public", "tmp", outputFileName);
             const res = await webp.cwebp(input, output, "-q 80");
             if (res) {
                 throw new Error(`error while converting the image ${file.name}`);
             }
 
+            // get the size of the converted file
+            const outputFile = await readFile(output);
+            const outputFileSize = outputFile.byteLength;
+            
+            outputFilesData.push({
+                name: outputFileName,
+                size:outputFileSize,
+                downloadLink: `./tmp/${outputFileName}`
+            });
+            console.log(outputFilesData);
+            
+
             files.forEach(async (file: any) => {
-                const input = join('./', 'tmp', file.name);
-                await rm(input, { force: true });
+                const input = join('./', "public", "tmp", file.name);
+                promises.push(rm(input, { force: true }));
             });
 
-        });
+        }
 
+        await Promise.all(promises);
 
-
-
-
-        return new Response(JSON.stringify({ message: "file uploaded successfully" }), {
+        return new Response(JSON.stringify({
+            message: "file(s) converted successfully",
+            data: outputFilesData
+        }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
-
-
 
     } catch (error: any) {
         console.error(error);

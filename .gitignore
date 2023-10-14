@@ -36,5 +36,5 @@ yarn-error.log*
 next-env.d.ts
 
 #files on tmp folder that is a image
-tmp/*
-!tmp/README.md
+public/tmp/*
+!public/tmp/README.md
