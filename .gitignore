@@ -38,3 +38,4 @@ next-env.d.ts
 #files on tmp folder that is a image
 public/tmp/*
 !public/tmp/README.md
+!public/tmp/argentina.png
