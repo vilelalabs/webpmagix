@@ -1,19 +1,23 @@
 "use client";
-import LoadedFile from "@/components/LoadedFile";
-import Title from "@/components/Title";
-import useConvertedFiles, {ConvertedFileInterface} from "@/hooks/useConvertedFiles";
-import useLoadedFiles from "@/hooks/useLoadedFiles";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Title from "@/components/Title";
+import useConvertedFiles, { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
+import useLoadedFiles from "@/hooks/useLoadedFiles";
 
+import LoadedFile from "@/components/LoadedFile";
 
 const Loaded = () => {
+    const [loading, setLoading] = useState(false);
+
     const { loadedFiles } = useLoadedFiles();
     const { addConvertedFile } = useConvertedFiles();
     const router = useRouter();
 
-    if (loadedFiles.length === 0) router.push("/");
+    if (loadedFiles.length === 0) router.back();
 
     const handleConversion = async () => {
+        setLoading(true);
         try {
             const data = new FormData();
             loadedFiles.forEach((file, index) => {
@@ -35,15 +39,14 @@ const Loaded = () => {
             files.forEach((file: ConvertedFileInterface) => {
                 addConvertedFile(file);
             });
+
             
-
-
-
             router.push("/download");
-
 
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -61,8 +64,18 @@ const Loaded = () => {
 
             </div>
             <button
+                className={`${loading ? 'bg-hoverredviolet' : 'bg-redviolet hover:bg-hoverredviolet'} rounded-xl m-4 w-60 md:w-80 py-3 text-xl font-medium`}
                 onClick={handleConversion}
-                className="bg-redviolet rounded-xl w-60 md:w-80 py-3 text-xl font-medium hover:bg-hoverredviolet m-4">Convert to WEBP</button>
+                disabled={loading}
+
+            >{loading ?
+                <div className="flex flex-row justify-center items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Processing</span>
+                </div> : <>Convert to WEBP</>
+                }
+
+            </button>
         </div>
     );
 }
