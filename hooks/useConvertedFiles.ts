@@ -9,12 +9,16 @@ export interface ConvertedFileInterface {
 interface ConvertedFilesInterface {
     convertedFiles: ConvertedFileInterface[];
     addConvertedFile: (file: ConvertedFileInterface) => void;
+    clearConvertedFiles: () => void;
 }
 
 const useConvertedFiles = create<ConvertedFilesInterface>((set) => ({
     convertedFiles: [],
     addConvertedFile: (file) => set((state) => ({
         convertedFiles: [...state.convertedFiles, file],
+    })),
+    clearConvertedFiles: () => set((state) => ({
+        convertedFiles: [],
     })),
 }));
 
