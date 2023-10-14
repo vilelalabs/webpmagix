@@ -2,7 +2,7 @@
 import webp from 'webp-converter';
 import { NextRequest } from "next/server";
 import { join } from 'path';
-import { writeFile,rm } from 'fs/promises';
+import { writeFile, rm } from 'fs/promises';
 
 
 export async function POST(request: NextRequest) {
@@ -13,19 +13,13 @@ export async function POST(request: NextRequest) {
         const data = await request.formData();
         const files: any = [];
 
-        console.log("DATA: ", data);
-
         data.forEach((value, index) => {
             files.push(value as unknown as File);
         });
-
-        console.log("FILES: ", files);
-
+        
         files.forEach(async (file: any) => {
 
-            //file: File | null = file.get("file") as unknown as File;
-
-            if(!file) {
+            if (!file) {
                 return new Response(JSON.stringify({ error: "file not found" }), {
                     status: 400,
                     headers: { 'Content-Type': 'application/json' },
@@ -40,18 +34,19 @@ export async function POST(request: NextRequest) {
 
             const filename = file.name.split('.')[0];
             const output = join('./', 'tmp', `${filename}.webp`);
-            const res = await webp.cwebp(input, output, "-q 1");
-
-            if(res){
+            const res = await webp.cwebp(input, output, "-q 80");
+            if (res) {
                 throw new Error(`error while converting the image ${file.name}`);
             }
-            
+
+            files.forEach(async (file: any) => {
+                const input = join('./', 'tmp', file.name);
+                await rm(input, { force: true });
+            });
+
         });
 
-        files.forEach(async (file:any) => {            
-            const input = join('./', 'tmp', file.name);
-            await rm(input, { force: true });
-        });
+
 
 
 
