@@ -5,6 +5,8 @@ import { join } from 'path';
 import { writeFile, readFile, rm } from 'fs/promises';
 import { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
 
+const TIME_FOR_FILE_TO_BE_DELETED = 1000 * 60 * 5;
+
 export async function POST(request: NextRequest) {
     try {
         const data = await request.formData();
@@ -48,12 +50,17 @@ export async function POST(request: NextRequest) {
                 size:outputFileSize,
                 downloadLink: `./tmp/${outputFileName}`
             });
-            console.log(outputFilesData);
-            
 
             files.forEach(async (file: any) => {
                 const input = join('./', "public", "tmp", file.name);
                 promises.push(rm(input, { force: true }));
+            });
+
+            outputFilesData.forEach(async (file: any) => {
+                const output = join('./', "public", "tmp", file.name);
+                setTimeout(() => {
+                    rm(output, { force: true });
+                }, TIME_FOR_FILE_TO_BE_DELETED);
             });
 
         }
