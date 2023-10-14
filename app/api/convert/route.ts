@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
             
         });
 
-        // delete the file from the tmp folder
         files.forEach(async (file:any) => {            
             const input = join('./', 'tmp', file.name);
             await rm(input, { force: true });
