@@ -14,7 +14,9 @@ const Loaded = () => {
     const { addConvertedFile } = useConvertedFiles();
     const router = useRouter();
 
-    if (loadedFiles.length === 0) router.back();
+    if (typeof window !== "undefined") {
+        if (loadedFiles.length === 0) router.back();
+    }
 
     const handleConversion = async () => {
         setLoading(true);
@@ -40,7 +42,7 @@ const Loaded = () => {
                 addConvertedFile(file);
             });
 
-            
+
             router.push("/download");
 
         } catch (error) {
