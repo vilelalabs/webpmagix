@@ -19,10 +19,14 @@ const Download = () => {
 
     const handleReturnToHome = () => {
         clearConvertedFiles();
-        router.back();
+        if (typeof window !== "undefined") {
+            router.back();
+        }
     }
 
-    if (convertedFiles.length === 0) router.back();
+    if (typeof window !== "undefined") {
+        if (convertedFiles.length === 0) router.back();
+    }
 
     return (
         <div className="flex flex-col w-full items-center justify-center px-4 gap-24 md:px-52">
