@@ -1,3 +1,5 @@
+//TODO: resolver questão do clique dulo durante o upload
+
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -8,35 +10,33 @@ import useLoadedFiles from "@/hooks/useLoadedFiles";
 const MAX_FILE_SIZE = 100000000 // 100MB
 
 export default function Home() {
-
-  const { loadedFiles, addLoadedFile } = useLoadedFiles()
-
+  const { addLoadedFile } = useLoadedFiles()
   const router = useRouter();
 
-  const [files, setFiles] = useState<File[]>([]);
-  const inputFile = useRef<HTMLInputElement | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  const inputFile = useRef<HTMLInputElement | null>(null);
 
   const handleImageSelect = () => {
     setErrorMessage(null)
-    inputFile.current?.click()
+    inputFile.current?.click();
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
-
     const files = Array.from(e.target.files);
-    console.log(files)
 
     // Check if files are valid
     for (let i = 0; i < files.length; i++) {
       if (files[i].size > MAX_FILE_SIZE) {
-        setErrorMessage("One or more files are too large")
+        setErrorMessage("One or more files are too big");
         return
       }
       if (!files[i].type.includes("image")) {
-        setErrorMessage("One or more files are not images");
+        setErrorMessage("One or more of the selected files are not supported.");
+        return
+      }
+      if (files[i].name.includes(".ico") || files[i].name.includes(".svg") || files[i].name.includes(".webp")) {
+        setErrorMessage("One or more of the selected files are not supported");
         return
       }
     }
@@ -49,19 +49,21 @@ export default function Home() {
 
   }
 
-
   return (
     <main>
       <div className="flex flex-col w-full items-center justify-center p-20 gap-28 overflow-y-auto h-screen">
         <Title />
         <div className="flex flex-col items-center gap-8 md:w-1/2">
-          <p className="text-lg text-center font-light">Select any file with image format, eg. .png, .jpg, .jpeg, .gif, .svg, etc. Max file size is 100MB.</p>
+          <p className="text-lg text-center font-light">Select files with image format, eg. .png, .jpg, .jpeg, .gif, etc.
+            <br /> Max file size is 100MB.
+            <br /><span className="text-red-400">.ico and .svg and .webp itself are not supported as input.</span></p>
           <button
             onClick={handleImageSelect}
             className="bg-redviolet rounded-xl w-60 md:w-80 py-3 text-xl font-medium hover:bg-hoverredviolet m-4">
             Select File(s) to Convert
             <input
               onChange={(e) => handleImageChange(e)}
+
               type='file'
               id='file'
               accept="image/*"
@@ -70,7 +72,7 @@ export default function Home() {
               style={{ display: 'none' }}
             />
           </button>
-          {errorMessage && <p className="text-xl font-medium text-red-600">{errorMessage}</p>}
+          {errorMessage && <p className="text-xl text-center font-medium text-red-500">{errorMessage}</p>}
         </div>
       </div>
     </main>
