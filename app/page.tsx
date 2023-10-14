@@ -66,7 +66,7 @@ export default function Home() {
 
               type='file'
               id='file'
-              accept="image/*"
+              accept="image/png, image/jpeg, image/tiff, image/bmp"
               multiple
               ref={inputFile}
               style={{ display: 'none' }}
