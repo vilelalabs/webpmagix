@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            const input = join('./', "public", "tmp", file.name);
+            const input = join('./', "tmp", file.name);
             await writeFile(input, buffer);
 
             const filename = file.name.split('.')[0];
             const outputFileName = `${filename}.webp`;
-            const output = join('./', "public", "tmp", outputFileName);
+            const output = join('./', "tmp", outputFileName);
             const res = await webp.cwebp(input, output, "-q 80");
             if (res) {
                 throw new Error(`error while converting the image ${file.name}`);
@@ -52,12 +52,12 @@ export async function POST(request: NextRequest) {
             });
 
             files.forEach(async (file: any) => {
-                const input = join('./', "public", "tmp", file.name);
+                const input = join('./', "tmp", file.name);
                 promises.push(rm(input, { force: true }));
             });
 
             outputFilesData.forEach(async (file: any) => {
-                const output = join('./', "public", "tmp", file.name);
+                const output = join('./', "tmp", file.name);
                 setTimeout(() => {
                     rm(output, { force: true });
                 }, TIME_FOR_FILE_TO_BE_DELETED);
