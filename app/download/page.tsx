@@ -1,5 +1,3 @@
-// TODO: Delete files if person leave page or after some time
-
 "use client"
 
 import Title from "@/components/Title";
