@@ -33,7 +33,7 @@ const Download = () => {
             <Title />
 
             <div className="flex flex-col bg-babypowder gap-[10px] p-8 w-full rounded-2xl">
-                <p className="text-redviolet text-center mb-4 text-lg font-medium">⚠️ You have up to 5 minutes to downloaded the files below:</p>
+                <p className="text-redviolet text-center mb-4 text-lg font-medium">⚠️ You have up to 5 minutes to download the file(s) below:</p>
                 {convertedFiles.map((file: ConvertedFileInterface, index: number) => (
                     <ConvertedFile
                         key={index}
