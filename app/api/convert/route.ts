@@ -17,8 +17,8 @@ export async function POST(request: NextRequest) {
         });
 
         let outputFilesData: ConvertedFileInterface[] = [];
-        const promises:any = [];
-        
+        const promises: any = [];
+
         for (const file of files) {
             if (!file) {
                 return new Response(JSON.stringify({ error: "file not found" }), {
@@ -36,20 +36,24 @@ export async function POST(request: NextRequest) {
             const filename = file.name.split('.')[0];
             const outputFileName = `${filename}.webp`;
             const output = join('./', "public", "tmp", outputFileName);
+
+
             const res = await webp.cwebp(input, output, "-q 80");
             if (res) {
-                throw new Error(`error while converting the image ${file.name}`);
+                console.error(`error while converting the image ${file.name}`);
             }
 
             // get the size of the converted file
-            const outputFile = await readFile(output);
-            const outputFileSize = outputFile.byteLength;
-            
-            outputFilesData.push({
-                name: outputFileName,
-                size:outputFileSize,
-                downloadLink: `./tmp/${outputFileName}`
-            });
+            try {
+                const outputFile = await readFile(output);
+                const outputFileSize = outputFile.byteLength;
+                outputFilesData.push({
+                    name: outputFileName,
+                    size: outputFileSize,
+                    downloadLink: `./tmp/${outputFileName}`
+                });
+            } catch (error) { console.error(error); }
+
 
             files.forEach(async (file: any) => {
                 const input = join('./', "public", "tmp", file.name);
@@ -77,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error: any) {
         console.error(error);
-        return new Response(JSON.stringify({ error: "error while converting the image" }), {
+        return new Response(JSON.stringify({ error: "error trying to convert images." }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });
