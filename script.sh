@@ -1,0 +1,1 @@
+cp ./node_modules/webp-converter/bin/ ./.next/server -r
