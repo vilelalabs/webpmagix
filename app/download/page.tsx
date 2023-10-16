@@ -1,10 +1,12 @@
 "use client"
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import useConvertedFiles, { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
+import useLoadedFiles from "@/hooks/useLoadedFiles";
+
 import Title from "@/components/Title";
 import ConvertedFile from "@/components/ConvertedFile";
-import useConvertedFiles, { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
-import { useRouter } from "next/navigation";
-import useLoadedFiles from "@/hooks/useLoadedFiles";
 
 const Download = () => {
     const router = useRouter();
@@ -18,13 +20,15 @@ const Download = () => {
     const handleReturnToHome = () => {
         clearConvertedFiles();
         if (typeof window !== "undefined") {
-            router.back();
+            router.replace('/');
         }
     }
 
-    if (typeof window !== "undefined") {
-        if (convertedFiles.length === 0) router.back();
-    }
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            if (convertedFiles.length === 0) router.replace('/');
+        }
+    }, [convertedFiles,router]);
 
     return (
         <div className="flex flex-col w-full items-center justify-center px-4 gap-24 md:px-52">

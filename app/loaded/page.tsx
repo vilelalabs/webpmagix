@@ -1,7 +1,7 @@
 // TODO: add a message (if download file dont open, try to download images throu the links below:) and mount links to download files above
 
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Title from "@/components/Title";
 import useConvertedFiles, { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
@@ -16,9 +16,11 @@ const Loaded = () => {
     const { addConvertedFile } = useConvertedFiles();
     const router = useRouter();
 
-    if (typeof window !== "undefined") {
-        if (loadedFiles.length === 0) router.back();
-    }
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            if (loadedFiles.length === 0) router.replace('/');
+        }
+    }, [loadedFiles, router]);
 
     const handleConversion = async () => {
         setLoading(true);
