@@ -23,14 +23,21 @@ export default function Home() {
     inputFile.current?.click();
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {    
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const files = Array.from(e.target.files);
+
+    //adds files size
+    const totalFilesSize = files.reduce((acc, file) => acc + file.size, 0)
 
     // Check if files are valid
     for (let i = 0; i < files.length; i++) {
       if (files[i].size > MAX_FILE_SIZE) {
         setErrorMessage("One or more files are too big");
+        return
+      }
+      if (totalFilesSize > MAX_FILE_SIZE) {
+        setErrorMessage("Sum of file(s) size is bigger than 25MB");
         return
       }
       if (!files[i].type.includes("image")) {
@@ -49,7 +56,7 @@ export default function Home() {
     });
     //setLoading(false)
 
-    
+
     router.push("/loaded")
 
   }
@@ -59,8 +66,8 @@ export default function Home() {
       <div className="flex flex-col w-full items-center justify-center p-20 gap-28 overflow-y-auto h-screen">
         <Title />
         <div className="flex flex-col items-center gap-8 md:w-1/2">
-          <p className="text-lg text-center font-light">Select files with image format, eg. .png, .jpg, .jpeg, .gif, etc.
-            <br /> Max file size is {MAX_FILE_SIZE / 1000000}MB.
+          <p className="text-lg text-center font-light text-babypowder">Select files with image format, eg. .png, .jpg, .jpeg, .gif, etc.
+            <br /> Max file/batch size: <span className="font-bold">25MB</span>
             <br /><span className="text-red-400">.ico and .svg and .webp itself are not supported as input.</span></p>
           {/* <button
             onClick={handleImageSelect}
