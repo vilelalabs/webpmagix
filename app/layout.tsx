@@ -1,3 +1,5 @@
+//TODO:  check: https://github.com/vercel/next.js/issues/47793#issuecomment-1653889244
+
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
