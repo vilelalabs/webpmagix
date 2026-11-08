@@ -52,3 +52,21 @@ export async function removeExpiredBatches() {
         // ROOT does not exist yet: nothing to clean.
     }
 }
+
+// Limits of one conversion request (also shown on the home page).
+export const MAX_FILES = 20;
+export const MAX_TOTAL_BYTES = 25 * 1000 * 1000; // 25 MB, same as the client check
+
+// Formats the bundled cwebp converts, recognized by their first bytes (never by the
+// file name or the browser's MIME type). BMP and GIF are not supported by cwebp.
+const SIGNATURES: { ext: string; bytes: number[] }[] = [
+    { ext: ".png", bytes: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] },
+    { ext: ".jpg", bytes: [0xff, 0xd8, 0xff] },
+    { ext: ".tiff", bytes: [0x49, 0x49, 0x2a, 0x00] },
+    { ext: ".tiff", bytes: [0x4d, 0x4d, 0x00, 0x2a] },
+];
+
+export function imageExtension(buffer: Uint8Array): string | null {
+    const match = SIGNATURES.find((s) => s.bytes.every((b, i) => buffer[i] === b));
+    return match ? match.ext : null;
+}

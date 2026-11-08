@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'WEBP Magix',
-  description: 'WEBP Magix',
+  description: 'Convert PNG, JPEG and TIFF images to the lightweight WebP format. Files are deleted from the server within 5 minutes.',
 }
 
 export default function RootLayout({
@@ -19,10 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} flex flex-col min-h-screen`}>
         <Navbar />
-        {children}
-        {/* <Footer/> */}
+        <div className="flex-1">
+          {children}
+        </div>
+        <Footer />
       </body>
     </html>
   )

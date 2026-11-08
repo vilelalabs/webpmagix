@@ -3,7 +3,7 @@ import { create } from 'zustand'
 interface LoadedFilesInterface {
     loadedFiles: File[]
     addLoadedFile: (file: File) => void
-    removeLoadedFile: (file: File) => void
+    removeLoadedFile: (index: number) => void
     clearLoadedFiles: () => void
 }
 
@@ -13,10 +13,11 @@ const useLoadedFiles = create<LoadedFilesInterface>((set) => ({
     addLoadedFile: (file) => set((state) => ({
         loadedFiles: [...state.loadedFiles, file],
     })),
-    removeLoadedFile: (file) => set((state) => ({
-        loadedFiles: state.loadedFiles.filter((f) => f.name !== file.name),
+    // by position: two files may have the same name
+    removeLoadedFile: (index) => set((state) => ({
+        loadedFiles: state.loadedFiles.filter((_, i) => i !== index),
     })),
-    clearLoadedFiles: () => set((state) => ({
+    clearLoadedFiles: () => set(() => ({
         loadedFiles: [],
     })),
 }));

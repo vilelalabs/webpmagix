@@ -1,16 +1,18 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const Navbar = () => {
     return (
         <nav className="border-b border-titlered">
-            <a href="/">
+            <Link href="/">
                 <Image
                     src="/logo.png"
-                    alt="Logo"
+                    alt="WEBP Magix"
                     width={260}
                     height={55}
+                    priority
                 />
-            </a>
+            </Link>
         </nav>
     );
 }

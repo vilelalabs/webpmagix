@@ -1,15 +1,18 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import Title from "@/components/Title"
 import useLoadedFiles from "@/hooks/useLoadedFiles";
 
-const MAX_FILE_SIZE = 25000000 // in bytes (x1000000 for MB)
+const MAX_TOTAL_SIZE = 25000000 // in bytes (25 MB), same limit as the server
+const MAX_FILES = 20 // same limit as the server
+// formats the converter (cwebp) really converts; BMP, GIF, ICO, SVG and WebP are not
+const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/tiff"];
 
 export default function Home() {
-  const { addLoadedFile } = useLoadedFiles()
+  const { addLoadedFile, clearLoadedFiles } = useLoadedFiles()
   const router = useRouter();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -25,92 +28,63 @@ export default function Home() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const files = Array.from(e.target.files);
+    e.target.value = ""; // lets the same file be picked again after an error
 
-    //adds files size
+    if (files.length === 0) return
+    if (files.length > MAX_FILES) {
+      setErrorMessage(`Select at most ${MAX_FILES} files at a time.`);
+      return
+    }
     const totalFilesSize = files.reduce((acc, file) => acc + file.size, 0)
-
-    // Check if files are valid
-    for (let i = 0; i < files.length; i++) {
-      if (files[i].size > MAX_FILE_SIZE) {
-        setErrorMessage("One or more files are too big");
-        return
-      }
-      if (totalFilesSize > MAX_FILE_SIZE) {
-        setErrorMessage("Sum of file(s) size is bigger than 25MB");
-        return
-      }
-      if (!files[i].type.includes("image")) {
-        setErrorMessage("One or more of the selected files are not supported.");
-        return
-      }
-      if (files[i].name.includes(".ico") || files[i].name.includes(".svg") || files[i].name.includes(".webp")) {
-        setErrorMessage("One or more of the selected files are not supported");
-        return
-      }
+    if (totalFilesSize > MAX_TOTAL_SIZE) {
+      setErrorMessage("Sum of file(s) size is bigger than 25MB");
+      return
+    }
+    if (files.some((file) => !ACCEPTED_TYPES.includes(file.type))) {
+      setErrorMessage("One or more of the selected files are not supported. Use PNG, JPEG or TIFF images.");
+      return
     }
 
     setLoading(true)
+    clearLoadedFiles()
     files.forEach((file) => {
       addLoadedFile(file)
     });
-    //setLoading(false)
-
 
     router.push("/loaded")
-
   }
 
   return (
     <main>
-      <div className="flex flex-col w-full items-center justify-center p-20 gap-28 overflow-y-auto h-screen">
+      <div className="flex flex-col w-full items-center justify-center px-6 py-20 gap-20 md:gap-28">
         <Title />
         <div className="flex flex-col items-center gap-8 md:w-1/2">
-          <p className="text-lg text-center font-light text-babypowder">Select files with image format, eg. .png, .jpg, .jpeg, .gif, etc.
-            <br /> Max file/batch size: <span className="font-bold">25MB</span>
-            <br /><span className="text-red-400">.ico and .svg and .webp itself are not supported as input.</span></p>
-          {/* <button
-            onClick={handleImageSelect}
-            className="bg-redviolet rounded-xl w-60 md:w-80 py-3 text-xl font-medium hover:bg-hoverredviolet m-4">
-            Select File(s) to Convert
-            <input
-              onChange={(e) => handleImageChange(e)}
+          <p className="text-lg text-center font-light text-babypowder">Select PNG, JPG/JPEG or TIFF images.
+            <br /> Up to <span className="font-bold">{MAX_FILES} files</span> and <span className="font-bold">25MB</span> in total.
+            <br /><span className="text-red-400">BMP, GIF, ICO, SVG and WebP itself are not supported as input.</span></p>
 
-              type='file'
-              id='file'
-              accept="image/png, image/jpeg, image/tiff, image/bmp"
-              multiple
-              ref={inputFile}
-              style={{ display: 'none' }}
-            />
-          </button> */}
-
+          <input
+            onChange={handleImageChange}
+            type='file'
+            id='file'
+            accept={ACCEPTED_TYPES.join(", ")}
+            multiple
+            ref={inputFile}
+            className="hidden"
+          />
           <button
+            type="button"
             className={`${loading ? 'bg-hoverredviolet' : 'bg-redviolet hover:bg-hoverredviolet'} rounded-xl m-4 w-60 md:w-80 py-3 text-xl font-medium`}
             onClick={handleImageSelect}
             disabled={loading}
-
           >{loading ?
             <div className="flex flex-row justify-center items-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               <span>Processing</span>
             </div>
-            : <>
-              <input
-                onChange={(e) => handleImageChange(e)}
-
-                type='file'
-                id='file'
-                accept="image/png, image/jpeg, image/tiff, image/bmp"
-                multiple
-                ref={inputFile}
-                style={{ display: 'none' }}
-              />
-              <p>Select File(s) to Convert</p>
-            </>
+            : <p>Select File(s) to Convert</p>
             }
-
           </button>
-
 
           {errorMessage && <p className="text-xl text-center font-medium text-red-500">{errorMessage}</p>}
 
