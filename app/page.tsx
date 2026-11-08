@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import Title from "@/components/Title"
 import useLoadedFiles from "@/hooks/useLoadedFiles";
@@ -112,6 +113,12 @@ export default function Home() {
 
 
           {errorMessage && <p className="text-xl text-center font-medium text-red-500">{errorMessage}</p>}
+
+          <p className="text-sm text-center font-light text-babypowder/80 max-w-md">
+            🔒 Your images are only used for the conversion: the originals are deleted right after it
+            and the WebP files within 5 minutes. No account, no cookies, no tracking.{" "}
+            <Link href="/privacy" className="underline hover:text-turquoise">Privacy Policy</Link>
+          </p>
         </div>
       </div>
     </main>

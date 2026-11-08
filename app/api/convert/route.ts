@@ -1,89 +1,90 @@
 // @ts-ignore
 import webp from 'webp-converter';
 import { NextRequest } from "next/server";
-import { join } from 'path';
-import { writeFile, readFile, rm } from 'fs/promises';
+import { randomUUID } from 'crypto';
+import { extname, join } from 'path';
+import { mkdir, writeFile, stat, rm } from 'fs/promises';
 import { ConvertedFileInterface } from "@/hooks/useConvertedFiles";
+import {
+    TIME_FOR_FILE_TO_BE_DELETED,
+    batchDir,
+    removeExpiredBatches,
+    safeBaseName,
+} from "@/lib/storage";
 
-const TIME_FOR_FILE_TO_BE_DELETED = 1000 * 60 * 5;
+const json = (body: object, status: number) =>
+    new Response(JSON.stringify(body), {
+        status,
+        headers: { 'Content-Type': 'application/json' },
+    });
 
 export async function POST(request: NextRequest) {
-    try {
-        const data = await request.formData();
-        const files: any = [];
+    // One random folder per conversion: the download links only work with this id,
+    // so no visitor data (IP, cookie, account) is needed to keep batches apart.
+    const id = randomUUID();
+    const dir = batchDir(id);
 
-        data.forEach((value, index) => {
-            files.push(value as unknown as File);
+    try {
+        await removeExpiredBatches();
+
+        const data = await request.formData();
+        const files: File[] = [];
+        data.forEach((value) => {
+            if (typeof value !== "string") files.push(value as File);
         });
 
-        let outputFilesData: ConvertedFileInterface[] = [];
-        const promises: any = [];
+        if (files.length === 0) return json({ error: "file not found" }, 400);
 
-        for (const file of files) {
-            if (!file) {
-                return new Response(JSON.stringify({ error: "file not found" }), {
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
+        await mkdir(dir, { recursive: true });
 
-            const bytes = await file.arrayBuffer();
-            const buffer = Buffer.from(bytes);
+        const outputFilesData: ConvertedFileInterface[] = [];
+        const usedNames = new Set<string>();
 
-            const input = join('./', "public", "tmp", file.name);
-            await writeFile(input, buffer);
+        for (let index = 0; index < files.length; index++) {
+            const file = files[index];
+            // The original is stored under a neutral name, never the user's one.
+            const ext = extname(file.name).toLowerCase().replace(/[^.a-z0-9]/g, "").slice(0, 6);
+            const input = join(dir, `input-${index}${ext}`);
+            await writeFile(input, Buffer.from(await file.arrayBuffer()));
 
-            const filename = file.name.split('.')[0];
-            const outputFileName = `${filename}.webp`;
-            const output = join('./', "public", "tmp", outputFileName);
-
+            const base = safeBaseName(file.name);
+            let outputFileName = `${base}.webp`;
+            for (let n = 2; usedNames.has(outputFileName); n++) outputFileName = `${base}-${n}.webp`;
+            usedNames.add(outputFileName);
+            const output = join(dir, outputFileName);
 
             const res = await webp.cwebp(input, output, "-q 80");
             if (res) {
-                console.error(`error while converting the image ${file.name}`);
+                console.error("error while converting an image");
             }
+
+            // The original never stays on the server after the conversion.
+            await rm(input, { force: true });
 
             // get the size of the converted file
             try {
-                const outputFile = await readFile(output);
-                const outputFileSize = outputFile.byteLength;
+                const { size } = await stat(output);
                 outputFilesData.push({
                     name: outputFileName,
-                    size: outputFileSize,
-                    downloadLink: `./tmp/${outputFileName}`
+                    size,
+                    downloadLink: `/api/download/${id}/${encodeURIComponent(outputFileName)}`,
                 });
-            } catch (error) { console.error(error); }
-
-
-            files.forEach(async (file: any) => {
-                const input = join('./', "public", "tmp", file.name);
-                promises.push(rm(input, { force: true }));
-            });
-
-            outputFilesData.forEach(async (file: any) => {
-                const output = join('./', "public", "tmp", file.name);
-                setTimeout(() => {
-                    rm(output, { force: true });
-                }, TIME_FOR_FILE_TO_BE_DELETED);
-            });
-
+            } catch (error) { console.error("converted file not found"); }
         }
 
-        await Promise.all(promises);
+        // The converted files are deleted after the download window.
+        setTimeout(() => {
+            rm(dir, { recursive: true, force: true });
+        }, TIME_FOR_FILE_TO_BE_DELETED);
 
-        return new Response(JSON.stringify({
+        return json({
             message: "file(s) converted successfully",
-            data: outputFilesData
-        }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+            data: outputFilesData,
+        }, 200);
 
     } catch (error: any) {
         console.error(error);
-        return new Response(JSON.stringify({ error: "error trying to convert images." }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        await rm(dir, { recursive: true, force: true });
+        return json({ error: "error trying to convert images." }, 500);
     }
 }
